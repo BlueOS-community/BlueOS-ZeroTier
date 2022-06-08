@@ -117,6 +117,9 @@ chmod +x /healthcheck.sh
 
 log_params "zerotier-cli info:" "$(zerotier-cli info)"
 
+# launch web interface
+cd web && python main.py &
+
 log "Sleeping infinitely"
 while true
 do
