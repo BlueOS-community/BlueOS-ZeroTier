@@ -1,3 +1,15 @@
+# This is a fork!
+
+This was quickly put together in order to allow setting up ZeroTier on a BlueOS instance.
+
+To install, do:
+
+`red-pill`
+
+`docker run -d --name zerotier-one --device=/dev/net/tun --net=host  --restart=unless-stopped   --cap-add=NET_ADMIN --cap-add=SYS_ADMIN   -v /var/lib/zerotier-one:/var/lib/zerotier-one williangalvani/zerotier`
+
+
+
 ZeroTier - Global Area Networking
 ======
 This document is written for a software developer audience. For information on using ZeroTier, see the: [Website](https://www.zerotier.com), [Documentation Site](https://docs.zerotier.com), and [Discussion Forum](https://discuss.zerotier.com)
