@@ -30,5 +30,22 @@ RUN cd web && pip install .
 
 HEALTHCHECK --interval=1s CMD bash /healthcheck.sh
 
+
+LABEL version="1.0"
+LABEL permissions '\
+{\
+    "network_mode": "host",\
+    "cap_add": ["SYS_ADMIN", "NET_ADMIN"],\
+    "volumes": { "/var/lib/zerotier-one": {"bind": "/var/lib/zerotier-one", "mode": "rw"}}\
+}'
+LABEL reasonings = '{\
+    "network_mode": "Default option",\
+    "cap_add": "Full system and Network management for creating a VPN",\
+    "volumes": "Used for settings persistency"\
+}'
+
+LABEL requirements="core >= 1"
+
+
 CMD []
 ENTRYPOINT ["/entrypoint.sh"]

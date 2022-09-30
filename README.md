@@ -1,10 +1,2 @@
-# This is a fork!
-
-This was quickly put together in order to allow setting up ZeroTier on a BlueOS instance.
-
-To install, do:
-
-`red-pill`
-
-`docker run -d --name zerotier-one --device=/dev/net/tun --net=host  --restart=unless-stopped   --cap-add=NET_ADMIN --cap-add=SYS_ADMIN   -v /var/lib/zerotier-one:/var/lib/zerotier-one williangalvani/zerotier`
-
+This is a ZeroTier extension. It sets up a VPN to access your device from anywhere with an internet connection.
+For more information on ZeroTier, check [ZeroTier](https://www.zerotier.com/).
