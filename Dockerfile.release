@@ -32,14 +32,26 @@ HEALTHCHECK --interval=1s CMD bash /healthcheck.sh
 LABEL version="1.0"
 LABEL permissions '\
 {\
-    "network_mode": "host",\
-    "cap_add": ["SYS_ADMIN", "NET_ADMIN"],\
-    "volumes": { "/var/lib/zerotier-one": {"bind": "/var/lib/zerotier-one", "mode": "rw"}}\
-}'
+    "Privileged": true,\
+    "NetworkMode":"host"\
+    ,"HostConfig":{\
+        "NetworkMode":"host",\
+        "CapAdd":["SYS_ADMIN","NET_ADMIN"],\
+        "Binds":["/var/lib/zerotier-one:/var/lib/zerotier-one"],\
+        "Devices":[\
+            {\
+                "PathOnHost":"/dev/net/tun",\
+                "PathInContainer":"/dev/net/tun",\
+                "CgroupPermissions":"rwm"\
+            }\
+        ]\
+    }\
+} '
 LABEL reasonings = '{\
     "network_mode": "Default option",\
     "cap_add": "Full system and Network management for creating a VPN",\
     "volumes": "Used for settings persistency"\
+    "HostConfig": "Used for creating network devices"\
 }'
 
 LABEL requirements="core >= 1"
