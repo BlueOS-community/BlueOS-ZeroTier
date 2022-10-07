@@ -47,12 +47,21 @@ LABEL permissions '\
         ]\
     }\
 } '
-LABEL reasonings = '{\
-    "network_mode": "Default option",\
-    "cap_add": "Full system and Network management for creating a VPN",\
-    "volumes": "Used for settings persistency"\
-    "HostConfig": "Used for creating network devices"\
-}'
+LABEL authors '[\
+    {\
+        "name": "Willian Galvani",\
+        "email": "willian@bluerobotics.com"\
+    }\
+]'
+LABEL docs ''
+LABEL company '{\
+        "about": "",\
+        "name": "Blue Robotics",\
+        "email": "support@bluerobotics.com"\
+    }'
+LABEL readme 'https://raw.githubusercontent.com/Williangalvani/ZeroTierOne/{tag}/README.md'
+LABEL website 'https://github.com/williangalvani/zerotierone'
+LABEL support 'https://github.com/williangalvani/zerotierone'
 
 LABEL requirements="core >= 1"
 
