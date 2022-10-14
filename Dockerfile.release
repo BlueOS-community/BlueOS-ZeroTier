@@ -34,9 +34,9 @@ HEALTHCHECK --interval=1s CMD bash /healthcheck.sh
 LABEL version="1.0"
 LABEL permissions '\
 {\
-    "Privileged": true,\
     "NetworkMode":"host"\
     ,"HostConfig":{\
+        "Privileged": true,\
         "NetworkMode":"host",\
         "CapAdd":["SYS_ADMIN","NET_ADMIN"],\
         "Binds":["/var/lib/zerotier-one:/var/lib/zerotier-one"],\
