@@ -31,8 +31,8 @@ RUN cd web && pip install .
 HEALTHCHECK --interval=1s CMD bash /healthcheck.sh
 
 
-LABEL version="1.0"
-LABEL permissions '\
+LABEL version="1.0.1"
+LABEL permissions='\
 {\
     "NetworkMode":"host"\
     ,"HostConfig":{\
@@ -49,23 +49,28 @@ LABEL permissions '\
         ]\
     }\
 } '
-LABEL authors '[\
+LABEL authors='[\
     {\
         "name": "Willian Galvani",\
         "email": "willian@bluerobotics.com"\
     }\
 ]'
-LABEL docs ''
-LABEL company '{\
+LABEL company='{\
         "about": "",\
         "name": "Blue Robotics",\
         "email": "support@bluerobotics.com"\
     }'
-LABEL readme 'https://raw.githubusercontent.com/Williangalvani/ZeroTierOne/{tag}/README.md'
-LABEL website 'https://github.com/williangalvani/zerotierone'
-LABEL support 'https://github.com/williangalvani/zerotierone'
+LABEL type="other"
+LABEL tags='[\
+        "communication"\
+    ]'
+LABEL readme='https://raw.githubusercontent.com/Williangalvani/ZeroTierOne/{tag}/README.md'
+LABEL links='{\
+        "website": "https://github.com/Williangalvani/zerotierone",\
+        "support": "https://github.com/Williangalvani/zerotierone/issues"\
+    }'
 
-LABEL requirements="core >= 1"
+LABEL requirements="core >= 1.1"
 
 
 CMD []
