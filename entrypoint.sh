@@ -1,5 +1,18 @@
 #!/bin/sh
 
+# Check if /var/lib/zerotier-one/ is not empty
+if [ "$(ls -A /var/lib/zerotier-one/)" ]; then
+    echo "/var/lib/zerotier-one/ is not empty, continuing..."
+else
+    # /var/lib/zerotier-one/ is empty, so check /old-settings/
+    if [ "$(ls -A /old-settings/)" ]; then
+        echo "Moving files from /old-settings/ to /var/lib/zerotier-one/"
+        mv /old-settings/* /var/lib/zerotier-one/
+    else
+        echo "Both /var/lib/zerotier-one/ and /old-settings/ are empty."
+    fi
+fi
+
 grepzt() {
   [ -f /var/lib/zerotier-one/zerotier-one.pid -a -n "$(cat /var/lib/zerotier-one/zerotier-one.pid 2>/dev/null)" -a -d "/proc/$(cat /var/lib/zerotier-one/zerotier-one.pid 2>/dev/null)" ]
   return $?

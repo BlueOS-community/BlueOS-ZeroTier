@@ -1,13 +1,4 @@
 >**NOTE:** This is a [BlueOS Extension](https://blueos.cloud/docs/blueos/1.1/extensions/) for using the [ZeroTier](https://www.zerotier.com/) service on a BlueOS device. It sets up a VPN to access your device from anywhere with an internet connection.
-
-### WARNING:
-
-The 12.1.2 update makes the extension use a different folder for persistence. In order to stay connected to your previous Networks, run
-
-`red-pill`
-
-`sudo mkdir -p /usr/blueos/extensions/zerotier && sudo cp -r /var/lib/zerotier-one/* /usr/blueos/extensions/zerotier`
-
 ## Initial Setup
 
 1. Install [the ZeroTier extension](https://docs.bluerobotics.com/BlueOS-Extensions-Repository/#:~:text=ZeroTier,Maintainer) on your vehicle

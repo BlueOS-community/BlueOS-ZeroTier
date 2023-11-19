@@ -18,6 +18,7 @@ LABEL permissions="{\
     ],\
     \"Binds\":[\
       \"/usr/blueos/extensions/zerotier:/var/lib/zerotier-one\",\
+      "/var/lib/zerotier-one:/old-settings",\
     ],\
     \"Devices\":[\
       {\
