@@ -6,30 +6,6 @@ ARG PACKAGE_BASEURL=https://download.zerotier.com/debian/buster/pool/main/z/zero
 ARG ARCH=amd64
 ARG VERSION
 
-LABEL version="1.12.2"
-LABEL permissions="{\
-  \"NetworkMode\":\"host\",\
-  \"HostConfig\":{\
-    \"Privileged\":true,\
-    \"NetworkMode\":\"host\",\
-    \"CapAdd\":[\
-      \"SYS_ADMIN\",\
-      \"NET_ADMIN\"\
-    ],\
-    \"Binds\":[\
-      \"/usr/blueos/extensions/zerotier:/var/lib/zerotier-one\",\
-      "/var/lib/zerotier-one:/old-settings",\
-    ],\
-    \"Devices\":[\
-      {\
-      \"PathOnHost\":\"/dev/net/tun\",\
-      \"PathInContainer\":\"/dev/net/tun\",\
-      \"CgroupPermissions\":\"rwm\"\
-      }\
-    ]\
-  }\
-}"
-
 RUN apt-get update -qq && apt-get install curl -y
 RUN curl -sSL -o zerotier-one.deb "${PACKAGE_BASEURL}/zerotier-one_${VERSION}_${ARCH}.deb"
 
@@ -50,22 +26,47 @@ COPY web /web
 
 RUN cd web && pip install .
 
-LABEL authors '[\
+
+LABEL permissions='\
+{\
+    "NetworkMode":"host"\
+    ,"HostConfig":{\
+        "Privileged": true,\
+        "NetworkMode":"host",\
+        "CapAdd":["SYS_ADMIN","NET_ADMIN"],\
+        "Binds":["/usr/blueos/extensions/zerotier:/var/lib/zerotier-one","/var/lib/zerotier-one:/old-settings"],\
+        "Devices":[\
+            {\
+                "PathOnHost":"/dev/net/tun",\
+                "PathInContainer":"/dev/net/tun",\
+                "CgroupPermissions":"rwm"\
+            }\
+        ]\
+    }\
+} '
+LABEL authors='[\
     {\
         "name": "Willian Galvani",\
         "email": "willian@bluerobotics.com"\
     }\
 ]'
-LABEL docs ''
-LABEL company '{\
+LABEL company='{\
         "about": "",\
         "name": "Blue Robotics",\
         "email": "support@bluerobotics.com"\
     }'
-LABEL readme 'https://raw.githubusercontent.com/Williangalvani/ZeroTierOne/{tag}/README.md'
-LABEL website 'https://github.com/williangalvani/zerotierone'
-LABEL support 'https://github.com/williangalvani/zerotierone'
-LABEL requirements "core >  1"
+LABEL type="other"
+LABEL tags='[\
+        "communication"\
+    ]'
+LABEL readme='https://raw.githubusercontent.com/Williangalvani/ZeroTierOne/{tag}/README.md'
+LABEL links='{\
+        "website": "https://github.com/Williangalvani/zerotierone",\
+        "support": "https://github.com/Williangalvani/zerotierone/issues"\
+    }'
+
+LABEL requirements="core >= 1.1"
+
 
 HEALTHCHECK --interval=1s CMD bash /healthcheck.sh
 
