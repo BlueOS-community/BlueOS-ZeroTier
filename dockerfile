@@ -1,12 +1,12 @@
 # vim: ft=dockerfile
 
-FROM debian:buster as stage
+FROM python:3.11-slim-bullseye as stage
 
 ARG PACKAGE_BASEURL=https://download.zerotier.com/debian/buster/pool/main/z/zerotier-one/
 
 COPY download.sh /download.sh
-RUN chmod +x /download.sh && /download.sh
-FROM bluerobotics/blueos-base:v0.0.9
+RUN chmod +x /download.sh &&  VERSION=1.14.0  /download.sh
+FROM python:3.11-slim-bullseye
 
 RUN apt-get update -qq && apt-get install openssl libssl1.1 -y
 
