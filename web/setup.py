@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name="ZeroTierManager",
-    version="0.1.0",
+    version="1.14.0",
     description="Allow the usage of simple commands from the frontend.",
     license="MIT",
     install_requires=[

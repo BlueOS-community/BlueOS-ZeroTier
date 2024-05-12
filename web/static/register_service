@@ -3,7 +3,7 @@
     "description":"Manager for ZeroTier networks",
     "icon":"mdi-wan",
     "company":"Blue Robotics",
-    "version":"1.0.0",
+    "version":"1.14.0",
     "webpage":"https://github.com/Williangalvani/ZeroTierOne",
     "api":"/v1.0/docs"
 }

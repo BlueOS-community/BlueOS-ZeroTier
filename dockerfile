@@ -3,7 +3,6 @@
 FROM debian:buster as stage
 
 ARG PACKAGE_BASEURL=https://download.zerotier.com/debian/buster/pool/main/z/zerotier-one/
-ARG VERSION
 
 COPY download.sh /download.sh
 RUN chmod +x /download.sh && /download.sh
@@ -14,7 +13,7 @@ RUN apt-get update -qq && apt-get install openssl libssl1.1 -y
 COPY --from=stage zerotier-one.deb .
 
 RUN dpkg -i zerotier-one.deb && rm -f zerotier-one.deb
-RUN echo "${VERSION}" >/etc/zerotier-version
+RUN echo VERSION=1.14.0 >/etc/zerotier-version
 RUN rm -rf /var/lib/zerotier-one
 
 COPY entrypoint.sh /entrypoint.sh
