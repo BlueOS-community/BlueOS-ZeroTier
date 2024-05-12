@@ -1,92 +1,94 @@
 <html>
 
 <head>
-    <title>ZeroTierManager</title>
-    <script src="vue2.6.0.js"></script>
-    <link rel="stylesheet" href="pico.min.css">
-    <script src="axios.min.js"></script>
+  <title>ZeroTierManager</title>
+  <script src="vue.js"></script>
+  <link rel="stylesheet" href="pico.min.css">
+  <script src="axios.min.js"></script>
 </head>
 
 <body>
-    <header>
-    </header>
-    <div id="app">
-        <main class="container">
-            <form>
-                <p>Status : {{ status }}</p>
-                Networks
-                <table>
-                    <th>
-                        <tr>
-                            <td>Network ID</td>
-                            <td>Name</td>
-                            <td>Mac</td>
-                            <td>Status</td>
-                            <td>Type</td>
-                            <td>Device</td>
-                            <td>ZeroTier Ip</td>
-                        </tr>
-                    </th>
-                    <tr :key="batata[2]" v-for="batata in networks">
-                        <td :key="item+batata[3]" v-for="item in batata">{{item}}</td>
-                        <td>
-                        <td><button @click.prevent="leaveNetwork(batata[0])">Leave</button></td>
-                    </tr>
-                </table>
-                Join new network
-                <input type="text" placeholder='Type network ID here' v-model="this.inputnetwork"></input>
-                <button @click.prevent="joinNetwork()">Join</button>
-            </form>
-        </main>
-    </div>
+  <header>
+  </header>
+  <div id="app">
+    <main class="container">
+
+      <p>Status : {{ status }}</p>
+      Networks
+      <table>
+        <th>
+          <tr>
+            <td>Network ID</td>
+            <td>Name</td>
+            <td>Mac</td>
+            <td>Status</td>
+            <td>Type</td>
+            <td>Device</td>
+            <td>ZeroTier Ips</td>
+          </tr>
+        </th>
+        <tr :key="network.id" v-for="network in networks">
+          <td> {{network.id}}</td>
+          <td> {{network.name}}</td>
+          <td> {{network.mac}}</td>
+          <td> {{network.status}}</td>
+          <td> {{network.type}}</td>
+          <td> {{network.portDeviceName}}</td>
+          <td> {{network.assignedAddresses.join('\n')}}</td>
+          <td><button @click.prevent="leaveNetwork(network.id)">Leave</button></td>
+        </tr>
+      </table>
+      <form>
+        Join new network
+        <input type="text" placeholder='Type network ID here' ref="newnetworkid"></input>
+        <button @click.prevent="joinNetwork()">Join</button>
+      </form>
+    </main>
+  </div>
 </body>
 <script>
 
-    var app = new Vue({
-        el: "#app",
-        data() {
-            return {
-                status: '-',
-                networks: [],
-            };
-        },
-        methods: {
-            checkStatus() {
-                axios.get('/v1.0/command/info').then((result) => {
-                    this.status = result.data.stdout;
-                    if (this.status.indexOf('ONLINE') > -1) {
-                        this.network = this.status.split('info ')[1].split(' ')[0]
-                    }
-                })
-                axios.get('/v1.0/command/networks').then((result) => {
-                    this.networks = []
-                    let lines = result.data.stdout.trim().split('\n')
-                    lines.splice(0, 1)
-                    for (let line of lines) {
-                        let newline = line.split(' ')
-                        newline.splice(0, 2)
-                        this.networks.push(newline)
-                    }
-                })
-            },
-            joinNetwork() {
-                axios.post(`/v1.0/command/join?network=${inputnetwork}`).then((result) => {
-                    this.status = result.data.stdout;
-                    console.log(result.status)
-                })
-            },
-            leaveNetwork(networkToLeave) {
-                axios.post(`/v1.0/command/leave?network=${networkToLeave}`).then((result) => {
-                    this.status = result.data.stdout;
-                    console.log(result.status)
-                })
-            },
-        },
-        mounted() {
-            this.checkStatus();
-            setInterval(this.checkStatus, 5000);
-        }
-    });
+  var app = new Vue({
+    el: "#app",
+    data() {
+      return {
+        status: '-',
+        networks: [],
+        inputnetwork: '',
+      };
+    },
+    methods: {
+      checkStatus() {
+        axios.get('/v1.0/command/info').then((result) => {
+          this.status = result.data.stdout;
+          if (this.status.indexOf('ONLINE') > -1) {
+            this.network = this.status.split('info ')[1].split(' ')[0]
+          }
+        })
+        axios.get('/v1.0/command/networks').then((result) => {
+          this.networks = JSON.parse(result.data.stdout);
+          console.log(this.networks)
+        })
+      },
+      joinNetwork() {
+        const newnetworkid = this.$refs.newnetworkid.value;
+        axios.post(`/v1.0/command/join?network=${newnetworkid}`).then((result) => {
+          this.status = result.data.stdout;
+          console.log(result.status)
+        })
+      },
+      leaveNetwork(networkToLeave) {
+        axios.post(`/v1.0/command/leave?network=${networkToLeave}`).then((result) => {
+          this.status = result.data.stdout;
+          console.log(result.status)
+        })
+      },
+    },
+    mounted() {
+      this.checkStatus();
+      setInterval(this.checkStatus, 5000);
+    }
+  });
 </script>
 
 </html>

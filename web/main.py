@@ -65,7 +65,7 @@ async def command_info() -> Any:
 @app.get("/command/networks", status_code=status.HTTP_200_OK)
 @version(1, 0)
 async def command_info() -> Any:
-    command = f'zerotier-cli listnetworks'
+    command = f'zerotier-cli listnetworks -j'
     logger.debug(f"Running command: {command}")
     output = run_command(command, False)
     return output
