@@ -1,13 +1,9 @@
 #! /usr/bin/env python3
-import logging
-import shutil
+
 import subprocess
-import time
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
-import appdirs
 from pydantic import BaseModel
 import uvicorn
 from fastapi import FastAPI, HTTPException, status
