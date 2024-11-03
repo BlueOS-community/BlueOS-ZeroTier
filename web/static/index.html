@@ -1,94 +1,193 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZeroTierManager</title>
   <script src="vue.js"></script>
-  <link rel="stylesheet" href="pico.min.css">
   <script src="axios.min.js"></script>
+  <link rel="stylesheet" href="pico.min.css">
+  <style>
+    .status-badge { display:inline-block; padding:0.25rem 0.75rem; border-radius:1rem; font-size:0.875rem; }
+    .status-online { background:#d1fae5; color:#065f46; }
+    .status-offline { background:#fee2e2; color:#991b1b; }
+    .card { padding:1rem; margin-bottom:1rem; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+    .compact-table { width:100%; font-size:0.875rem; }
+    .compact-table th { background:#f3f4f6; padding:0.5rem; }
+    .compact-table td { padding:0.5rem; border-bottom:1px solid #e5e7eb; }
+    .compact-table tr:hover { background:#f9fafb; }
+    .btn-sm { padding:0.25rem 0.5rem; font-size:0.875rem; }
+    .btn-danger { background:#ef4444; color:white; }
+    .btn-danger:hover { background:#dc2626; }
+    .grid-2 { display:grid; grid-template-columns:1fr auto; gap:0.5rem; align-items:center; }
+    .tabs { display:flex; gap:1rem; margin-bottom:1rem; }
+    .tab { cursor:pointer; padding:0.5rem 1rem; border-radius:0.25rem; }
+    .tab.active { background:#f3f4f6; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+  </style>
 </head>
-
 <body>
-  <header>
-  </header>
   <div id="app">
     <main class="container">
+      <div class="grid-2">
+        <h2>ZeroTier Manager</h2>
+        <span :class="['status-badge', status.includes('ONLINE') ? 'status-online' : 'status-offline']">
+          {{ status }}
+        </span>
+      </div>
 
-      <p>Status : {{ status }}</p>
-      Networks
-      <table>
-        <th>
-          <tr>
-            <td>Network ID</td>
-            <td>Name</td>
-            <td>Mac</td>
-            <td>Status</td>
-            <td>Type</td>
-            <td>Device</td>
-            <td>ZeroTier Ips</td>
-          </tr>
-        </th>
-        <tr :key="network.id" v-for="network in networks">
-          <td> {{network.id}}</td>
-          <td> {{network.name}}</td>
-          <td> {{network.mac}}</td>
-          <td> {{network.status}}</td>
-          <td> {{network.type}}</td>
-          <td> {{network.portDeviceName}}</td>
-          <td> {{network.assignedAddresses.join('\n')}}</td>
-          <td><button @click.prevent="leaveNetwork(network.id)">Leave</button></td>
-        </tr>
-      </table>
-      <form>
-        Join new network
-        <input type="text" placeholder='Type network ID here' ref="newnetworkid"></input>
-        <button @click.prevent="joinNetwork()">Join</button>
-      </form>
+      <div class="tabs">
+        <div
+          v-for="tab in ['Networks', 'Settings']"
+          :key="tab"
+          @click="activeTab = tab"
+          :class="['tab', activeTab === tab ? 'active' : '']"
+        >
+          {{ tab }}
+        </div>
+      </div>
+
+      <div :class="['panel', activeTab === 'Networks' ? 'active' : '']">
+        <div class="card">
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>IPs</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr :key="network.id" v-for="network in networks">
+                <td>{{network.id}}</td>
+                <td>{{network.name}}</td>
+                <td>{{network.status}}</td>
+                <td>
+                  <small>{{network.assignedAddresses.join(', ')}}</small>
+                </td>
+                <td>
+                  <button class="btn-sm btn-danger" @click.prevent="leaveNetwork(network.id)">Leave</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <form class="grid-2" style="margin-top:1rem">
+            <input type="text" placeholder='Network ID' ref="newnetworkid">
+            <button class="btn-sm" @click.prevent="joinNetwork()">Join</button>
+          </form>
+        </div>
+      </div>
+
+      <div :class="['panel', activeTab === 'Settings' ? 'active' : '']">
+        <div class="card">
+          <textarea
+            v-model="settingsJson"
+            rows="8"
+            placeholder="Settings JSON"
+            @input="validateJson"
+          ></textarea>
+          <div style="color:#dc2626; font-size:0.875rem" v-if="jsonError">
+            {{ jsonError }}
+          </div>
+          <button
+            class="btn-sm"
+            style="margin-top:0.5rem"
+            @click.prevent="saveSettings"
+            :disabled="!!jsonError"
+          >Save Settings</button>
+        </div>
+      </div>
+
     </main>
   </div>
-</body>
-<script>
 
-  var app = new Vue({
-    el: "#app",
-    data() {
-      return {
-        status: '-',
-        networks: [],
-        inputnetwork: '',
-      };
-    },
-    methods: {
-      checkStatus() {
-        axios.get('/v1.0/command/info').then((result) => {
-          this.status = result.data.stdout;
-          if (this.status.indexOf('ONLINE') > -1) {
-            this.network = this.status.split('info ')[1].split(' ')[0]
+  <script>
+    var app = new Vue({
+      el: "#app",
+      data() {
+        return {
+          status: '-',
+          networks: [],
+          settingsJson: '',
+          jsonError: null,
+          activeTab: 'Networks'
+        };
+      },
+      methods: {
+        checkStatus() {
+          axios.get('/v1.0/command/info').then(result => {
+            this.status = result.data;
+            if (this.status.indexOf('ONLINE') > -1) {
+              this.network = this.status.split('info ')[1].split(' ')[0]
+            }
+          })
+          axios.get('/v1.0/command/networks').then(result => {
+            this.networks = JSON.parse(result.data);
+          })
+        },
+        joinNetwork() {
+          const newnetworkid = this.$refs.newnetworkid.value;
+          axios.post(`/v1.0/command/join?network=${newnetworkid}`).then(result => {
+            this.status = result.data;
+            this.$refs.newnetworkid.value = '';
+          })
+        },
+        leaveNetwork(networkToLeave) {
+          if (confirm('Leave network?')) {
+            axios.post(`/v1.0/command/leave?network=${networkToLeave}`).then(result => {
+              this.status = result.data;
+            })
           }
-        })
-        axios.get('/v1.0/command/networks').then((result) => {
-          this.networks = JSON.parse(result.data.stdout);
-          console.log(this.networks)
-        })
-      },
-      joinNetwork() {
-        const newnetworkid = this.$refs.newnetworkid.value;
-        axios.post(`/v1.0/command/join?network=${newnetworkid}`).then((result) => {
-          this.status = result.data.stdout;
-          console.log(result.status)
-        })
-      },
-      leaveNetwork(networkToLeave) {
-        axios.post(`/v1.0/command/leave?network=${networkToLeave}`).then((result) => {
-          this.status = result.data.stdout;
-          console.log(result.status)
-        })
-      },
-    },
-    mounted() {
-      this.checkStatus();
-      setInterval(this.checkStatus, 5000);
-    }
-  });
-</script>
+        },
+        loadSettings() {
+          axios.get('/v1.0/settings').then(result => {
+            this.settingsJson = JSON.stringify(JSON.parse(result.data), null, 2);
+          }).catch(error => console.error('Error loading settings:', error));
+        },
+        validateJson() {
+          try {
+            if (this.settingsJson) {
+              JSON.parse(this.settingsJson);
+              this.jsonError = null;
+            }
+          } catch (e) {
+            this.jsonError = 'Invalid JSON: ' + e.message;
+          }
+        },
+        saveSettings() {
+          if (this.jsonError) return;
 
+          try {
+            // Validate the JSON but send the original string
+            JSON.parse(this.settingsJson); // Just for validation
+
+            // Send the settings string in the payload
+            axios.post('/v1.0/settings', {
+              settings: this.settingsJson
+            }, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }).then(() => {
+              alert('Settings saved!');
+            }).catch(error => {
+              alert('Error saving settings: ' + (error.response?.data?.detail || error.message));
+            });
+          } catch (e) {
+            this.jsonError = 'Invalid JSON: ' + e.message;
+          }
+        }
+      },
+      mounted() {
+        this.checkStatus();
+        this.loadSettings();
+        setInterval(this.checkStatus, 5000);
+      }
+    });
+  </script>
+</body>
 </html>
